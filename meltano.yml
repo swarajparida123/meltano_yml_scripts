@@ -1,0 +1,47 @@
+version: 1
+default_environment: dev
+project_id: d41aa7b6-14f8-4e72-8378-6ab84f6e17a4
+environments:
+- name: dev
+- name: staging
+- name: prod
+plugins:
+  extractors:
+  - name: tap-github
+    variant: meltanolabs
+    pip_url: git+https://github.com/MeltanoLabs/tap-github.git
+    config:
+      repositories:
+      - sbalnojan/meltano-lightdash
+      start_date: '2022-01-01'
+    select:
+    - commits.url
+    - commits.sha
+    - commits.commit_timestamp
+  - name: tap-s3-csv
+    variant: transferwise
+    pip_url: pipelinewise-tap-s3-csv
+    config:
+      start_date: '2022-01-01'
+      account_id: '429174430688'
+      bucket: my-bucket-04102023
+      tables:
+      - search_pattern: "test.csv"
+        table_name: test
+        delimiter: ","
+  - name: tap-csv
+    variant: meltanolabs
+    pip_url: git+https://github.com/MeltanoLabs/tap-csv.git
+  loaders:
+  - name: target-jsonl
+    variant: andyh1203
+    pip_url: target-jsonl
+  - name: target-postgres
+    variant: meltanolabs
+    pip_url: meltanolabs-target-postgres~=0.0.7
+    config:
+      user: meltano
+      database: postgres
+      add_record_metadata: true
+      host: localhost
+      port: 5000
